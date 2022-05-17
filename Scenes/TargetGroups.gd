@@ -14,6 +14,7 @@ func start():
 
 	c_group = -1
 	testing = true
+	total_shots = 0
 	next_group()
 	
 func count_shot():

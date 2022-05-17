@@ -30,7 +30,10 @@ func _physics_process(_delta):
 		elif !is_snapping:
 			self.global_transform = get_parent().global_transform.looking_at(get_parent().global_transform.origin - target_ray, get_parent().get_node("RayCast").global_transform.basis.y)
 			
-		self.set_as_toplevel(true)
+		if !move_self || !is_snapping && !is_stabilized:
+			self.set_as_toplevel(false)
+		else:
+			self.set_as_toplevel(true)
 			
 		if is_snapping:
 			snap_to_targets()
@@ -53,6 +56,7 @@ func stabilize():
 			stab_res = t_dir.slerp(norm_basis, 1.0 - e_dir_weight)
 			if move_self:
 				self.global_transform.basis = t_dir.slerp(norm_basis, 1.0 - e_dir_weight)
+				self.global_transform.origin = get_parent().global_transform.origin
 			else:
 				self.global_transform = get_parent().global_transform.looking_at(get_parent().global_transform.origin - forward, get_parent().get_node("RayCast").global_transform.basis.y)
 				norm_basis = $Spatial.global_transform.basis.orthonormalized()
@@ -80,9 +84,10 @@ func snap_to_targets():
 		tot_dir += dir*weight
 	
 	var final_dir = tot_dir.normalized()
-	
+
 	if move_self:	
 		self.global_transform = get_parent().global_transform.looking_at(get_parent().global_transform.origin - final_dir, get_parent().get_node("RayCast").global_transform.basis.y)
+		
 	else:
 		$Spatial.global_transform = get_parent().global_transform.looking_at(get_parent().global_transform.origin - final_dir, get_parent().get_node("RayCast").global_transform.basis.y)
 		if Global.mode > 6:

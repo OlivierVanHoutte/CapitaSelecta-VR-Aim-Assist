@@ -1,4 +1,4 @@
-[gd_scene load_steps=31 format=2]
+[gd_scene load_steps=28 format=2]
 
 [ext_resource path="res://Scenes/InterpolatedHand.gd" type="Script" id=1]
 [ext_resource path="res://addons/godot-openvr/scenes/ovr_first_person.tscn" type="PackedScene" id=2]
@@ -17,17 +17,6 @@
 [ext_resource path="res://Scenes/Area.gd" type="Script" id=15]
 [ext_resource path="res://Scenes/RightHand2.gd" type="Script" id=16]
 [ext_resource path="res://models/low-poly_vpo-102/Rifle.tscn" type="PackedScene" id=17]
-
-[sub_resource type="SpatialMaterial" id=22]
-flags_unshaded = true
-albedo_color = Color( 1, 0, 0, 1 )
-
-[sub_resource type="CubeMesh" id=21]
-size = Vector3( 200, 0.03, 0.03 )
-
-[sub_resource type="SpatialMaterial" id=23]
-flags_unshaded = true
-albedo_color = Color( 0, 0.27451, 1, 1 )
 
 [sub_resource type="ProceduralSky" id=12]
 ground_bottom_color = Color( 0.929412, 0.882353, 0.882353, 1 )
@@ -194,12 +183,6 @@ visible = false
 enabled = true
 cast_to = Vector3( 200, 0, 0 )
 
-[node name="MeshInstance" type="MeshInstance" parent="OVRFirstPerson/ARVRControllerR/RayCast"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 100, 0, 0 )
-material_override = SubResource( 22 )
-mesh = SubResource( 21 )
-material/0 = null
-
 [node name="RightHandObj" type="Spatial" parent="OVRFirstPerson/ARVRControllerR"]
 script = ExtResource( 1 )
 target_path = NodePath("..")
@@ -230,12 +213,6 @@ cast_to = Vector3( 2000, 0, 0 )
 collision_mask = 3
 collide_with_areas = true
 
-[node name="MeshInstance" type="MeshInstance" parent="OVRFirstPerson/ARVRControllerR/RightHandObj/Spatial/Spatial/RayCast"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 100, 0, 0 )
-material_override = SubResource( 22 )
-mesh = SubResource( 21 )
-material/0 = null
-
 [node name="RightHand2" type="Spatial" parent="OVRFirstPerson/ARVRControllerR"]
 script = ExtResource( 16 )
 target_path = NodePath("../../ARVRControllerL/LeftHandObj")
@@ -265,12 +242,6 @@ enabled = true
 cast_to = Vector3( 2000, 0, 0 )
 collision_mask = 3
 collide_with_areas = true
-
-[node name="MeshInstance" type="MeshInstance" parent="OVRFirstPerson/ARVRControllerR/RightHand2/Spatial/Spatial/RayCast"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 100, 0, 0 )
-material_override = SubResource( 23 )
-mesh = SubResource( 21 )
-material/0 = null
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource( 5 )

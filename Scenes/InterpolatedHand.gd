@@ -39,6 +39,7 @@ func _physics_process(_delta):
 			snap_to_targets()
 
 
+
 func stabilize():
 		var forward = get_parent().get_node("RayCast").get_global_transform().basis.x
 		var t_dir = self.global_transform.looking_at(self.global_transform.origin - forward, get_parent().get_node("RayCast").global_transform.basis.y).basis
