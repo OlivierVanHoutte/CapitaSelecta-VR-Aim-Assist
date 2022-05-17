@@ -1,0 +1,15 @@
+[remap]
+
+importer="ogg_vorbis"
+type="AudioStreamOGGVorbis"
+path="res://.import/574818__wesleyextreme-gamer__gunshot.ogg-e4e66a3b27a7a8c8bf96d713443885c0.oggstr"
+
+[deps]
+
+source_file="res://sfx/574818__wesleyextreme-gamer__gunshot.ogg"
+dest_files=[ "res://.import/574818__wesleyextreme-gamer__gunshot.ogg-e4e66a3b27a7a8c8bf96d713443885c0.oggstr" ]
+
+[params]
+
+loop=false
+loop_offset=0

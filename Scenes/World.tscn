@@ -1,0 +1,427 @@
+[gd_scene load_steps=31 format=2]
+
+[ext_resource path="res://Scenes/InterpolatedHand.gd" type="Script" id=1]
+[ext_resource path="res://addons/godot-openvr/scenes/ovr_first_person.tscn" type="PackedScene" id=2]
+[ext_resource path="res://Scenes/TargetGroup.tscn" type="PackedScene" id=3]
+[ext_resource path="res://models/low_poly_g17/gun.tscn" type="PackedScene" id=4]
+[ext_resource path="res://Images/PavingStones111_1K_Color.png" type="Texture" id=5]
+[ext_resource path="res://Scenes/World.gd" type="Script" id=6]
+[ext_resource path="res://Images/PavingStones111_1K_NormalGL.png" type="Texture" id=7]
+[ext_resource path="res://Images/PavingStones111_1K_Roughness.png" type="Texture" id=8]
+[ext_resource path="res://sfx/gun.wav" type="AudioStream" id=9]
+[ext_resource path="res://Scenes/Target.tscn" type="PackedScene" id=10]
+[ext_resource path="res://Scenes/TargetGroups.gd" type="Script" id=11]
+[ext_resource path="res://Scenes/MovingTarget.tscn" type="PackedScene" id=12]
+[ext_resource path="res://Scenes/Viewport.gd" type="Script" id=13]
+[ext_resource path="res://Images/start.png" type="Texture" id=14]
+[ext_resource path="res://Scenes/Area.gd" type="Script" id=15]
+[ext_resource path="res://Scenes/RightHand2.gd" type="Script" id=16]
+[ext_resource path="res://models/low-poly_vpo-102/Rifle.tscn" type="PackedScene" id=17]
+
+[sub_resource type="SpatialMaterial" id=22]
+flags_unshaded = true
+albedo_color = Color( 1, 0, 0, 1 )
+
+[sub_resource type="CubeMesh" id=21]
+size = Vector3( 200, 0.03, 0.03 )
+
+[sub_resource type="SpatialMaterial" id=23]
+flags_unshaded = true
+albedo_color = Color( 0, 0.27451, 1, 1 )
+
+[sub_resource type="ProceduralSky" id=12]
+ground_bottom_color = Color( 0.929412, 0.882353, 0.882353, 1 )
+ground_horizon_color = Color( 1, 1, 1, 1 )
+
+[sub_resource type="Environment" id=5]
+background_mode = 2
+background_sky = SubResource( 12 )
+ambient_light_color = Color( 0.592157, 0.737255, 0.941176, 1 )
+ambient_light_energy = 0.05
+
+[sub_resource type="Shader" id=13]
+code = "// NOTE: Shader automatically converted from Godot Engine 3.4.4.stable's SpatialMaterial.
+
+shader_type spatial;
+render_mode blend_mix,depth_draw_opaque,cull_back,diffuse_burley,specular_schlick_ggx;
+uniform vec4 albedo : hint_color;
+uniform sampler2D texture_albedo : hint_albedo;
+uniform float specular;
+uniform float metallic;
+uniform float roughness : hint_range(0,1);
+uniform float point_size : hint_range(0,128);
+uniform sampler2D texture_roughness : hint_white;
+uniform vec4 roughness_texture_channel;
+uniform sampler2D texture_normal : hint_normal;
+uniform float normal_scale : hint_range(-16,16);
+uniform vec3 uv1_scale;
+uniform vec3 uv1_offset;
+uniform vec3 uv2_scale;
+uniform vec3 uv2_offset;
+
+
+void vertex() {
+	UV=(UV*uv1_scale.xy+uv1_offset.xy)*100.0;
+
+}
+
+
+
+
+void fragment() {
+	vec2 base_uv = UV;
+	vec4 albedo_tex = texture(texture_albedo,base_uv);
+	ALBEDO = albedo.rgb * albedo_tex.rgb;
+	METALLIC = metallic;
+	float roughness_tex = dot(texture(texture_roughness,base_uv),roughness_texture_channel);
+	ROUGHNESS = roughness_tex * roughness;
+	SPECULAR = specular;
+	NORMALMAP = texture(texture_normal,base_uv).rgb;
+	NORMALMAP_DEPTH = normal_scale;
+}
+"
+
+[sub_resource type="ShaderMaterial" id=14]
+shader = SubResource( 13 )
+shader_param/albedo = Color( 1, 1, 1, 1 )
+shader_param/specular = 0.5
+shader_param/metallic = 0.0
+shader_param/roughness = 1.0
+shader_param/point_size = 1.0
+shader_param/roughness_texture_channel = Plane( 1, 0, 0, 0 )
+shader_param/normal_scale = 1.0
+shader_param/uv1_scale = Vector3( 1, 1, 1 )
+shader_param/uv1_offset = Vector3( 0, 0, 0 )
+shader_param/uv2_scale = Vector3( 1, 1, 1 )
+shader_param/uv2_offset = Vector3( 0, 0, 0 )
+shader_param/texture_albedo = ExtResource( 5 )
+shader_param/texture_roughness = ExtResource( 8 )
+shader_param/texture_normal = ExtResource( 7 )
+
+[sub_resource type="PlaneMesh" id=11]
+size = Vector2( 200, 200 )
+
+[sub_resource type="ViewportTexture" id=16]
+viewport_path = NodePath("Sprite3D/Viewport")
+
+[sub_resource type="BoxShape" id=17]
+extents = Vector3( 1, 0.666, 0.1 )
+
+[sub_resource type="SpatialMaterial" id=18]
+albedo_texture = ExtResource( 14 )
+
+[sub_resource type="CubeMesh" id=19]
+size = Vector3( 2, 1.33, 0.3 )
+
+[sub_resource type="CubeMesh" id=20]
+size = Vector3( 10, 1, 0.5 )
+
+[node name="World" type="Spatial"]
+script = ExtResource( 6 )
+lh_path = NodePath("OVRFirstPerson/ARVRControllerL/LeftHandObj")
+rh_path = NodePath("OVRFirstPerson/ARVRControllerR/RightHandObj")
+rh_path2 = NodePath("OVRFirstPerson/ARVRControllerR/RightHand2")
+
+[node name="RayCastL" type="RayCast" parent="."]
+visible = false
+cast_to = Vector3( 0, 0, 30 )
+
+[node name="RayCastR" type="RayCast" parent="."]
+visible = false
+cast_to = Vector3( 0, 0, 30 )
+
+[node name="OVRFirstPerson" parent="." instance=ExtResource( 2 )]
+
+[node name="ARVRControllerL" type="ARVRController" parent="OVRFirstPerson"]
+visible = false
+
+[node name="Position3D" type="Position3D" parent="OVRFirstPerson/ARVRControllerL"]
+
+[node name="RemoteTransformL" type="RemoteTransform" parent="OVRFirstPerson/ARVRControllerL"]
+remote_path = NodePath("../LeftHandObj")
+update_rotation = false
+update_scale = false
+
+[node name="RayCast" type="RayCast" parent="OVRFirstPerson/ARVRControllerL"]
+transform = Transform( -2.80971e-08, -3.34849e-08, 1, -0.766044, 0.642788, 0, -0.642788, -0.766044, -4.37114e-08, 0, 0, 0 )
+visible = false
+enabled = true
+cast_to = Vector3( 200, 0, 0 )
+
+[node name="LeftHandObj" type="Spatial" parent="OVRFirstPerson/ARVRControllerL"]
+script = ExtResource( 1 )
+target_path = NodePath("..")
+
+[node name="scene" parent="OVRFirstPerson/ARVRControllerL/LeftHandObj" instance=ExtResource( 4 )]
+
+[node name="RayCast" type="RayCast" parent="OVRFirstPerson/ARVRControllerL/LeftHandObj/scene"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.025, 0 )
+enabled = true
+cast_to = Vector3( 200, 0, 0 )
+collision_mask = 3
+collide_with_areas = true
+
+[node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="OVRFirstPerson/ARVRControllerL/LeftHandObj/scene"]
+transform = Transform( -2.80971e-08, -0.766044, -0.642788, -3.34849e-08, 0.642788, -0.766044, 1, 0, -4.37114e-08, 0, 0, 0 )
+stream = ExtResource( 9 )
+
+[node name="Spatial" type="Spatial" parent="OVRFirstPerson/ARVRControllerL/LeftHandObj"]
+
+[node name="Spatial" type="Spatial" parent="OVRFirstPerson/ARVRControllerL/LeftHandObj/Spatial"]
+transform = Transform( -4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 0, 0, 0 )
+
+[node name="RayCast" type="RayCast" parent="OVRFirstPerson/ARVRControllerL/LeftHandObj/Spatial/Spatial"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.025, 0 )
+enabled = true
+cast_to = Vector3( 2000, 0, 0 )
+collision_mask = 3
+collide_with_areas = true
+
+[node name="ARVRControllerR" type="ARVRController" parent="OVRFirstPerson"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 7.17953, 0 )
+controller_id = 2
+
+[node name="Position3D" type="Position3D" parent="OVRFirstPerson/ARVRControllerR"]
+
+[node name="RemoteTransformR" type="RemoteTransform" parent="OVRFirstPerson/ARVRControllerR"]
+remote_path = NodePath("../RightHandObj")
+update_rotation = false
+update_scale = false
+
+[node name="RayCast" type="RayCast" parent="OVRFirstPerson/ARVRControllerR"]
+transform = Transform( -2.80971e-08, -3.34849e-08, 1, -0.766044, 0.642788, 0, -0.642788, -0.766044, -4.37114e-08, 0, 0, 0 )
+visible = false
+enabled = true
+cast_to = Vector3( 200, 0, 0 )
+
+[node name="MeshInstance" type="MeshInstance" parent="OVRFirstPerson/ARVRControllerR/RayCast"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 100, 0, 0 )
+material_override = SubResource( 22 )
+mesh = SubResource( 21 )
+material/0 = null
+
+[node name="RightHandObj" type="Spatial" parent="OVRFirstPerson/ARVRControllerR"]
+script = ExtResource( 1 )
+target_path = NodePath("..")
+
+[node name="scene" parent="OVRFirstPerson/ARVRControllerR/RightHandObj" instance=ExtResource( 4 )]
+transform = Transform( -4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 0, 0, 0 )
+
+[node name="RayCast" type="RayCast" parent="OVRFirstPerson/ARVRControllerR/RightHandObj/scene"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.0250001, 0 )
+enabled = true
+cast_to = Vector3( 200, 0, 0 )
+collision_mask = 3
+collide_with_areas = true
+
+[node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="OVRFirstPerson/ARVRControllerR/RightHandObj/scene"]
+transform = Transform( -2.80971e-08, -0.766044, -0.642788, -3.34849e-08, 0.642788, -0.766044, 1, 0, -4.37114e-08, -0.265612, 0.222875, 0 )
+stream = ExtResource( 9 )
+
+[node name="Spatial" type="Spatial" parent="OVRFirstPerson/ARVRControllerR/RightHandObj"]
+
+[node name="Spatial" type="Spatial" parent="OVRFirstPerson/ARVRControllerR/RightHandObj/Spatial"]
+transform = Transform( -4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 0, 0, 0 )
+
+[node name="RayCast" type="RayCast" parent="OVRFirstPerson/ARVRControllerR/RightHandObj/Spatial/Spatial"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.025, 0 )
+enabled = true
+cast_to = Vector3( 2000, 0, 0 )
+collision_mask = 3
+collide_with_areas = true
+
+[node name="MeshInstance" type="MeshInstance" parent="OVRFirstPerson/ARVRControllerR/RightHandObj/Spatial/Spatial/RayCast"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 100, 0, 0 )
+material_override = SubResource( 22 )
+mesh = SubResource( 21 )
+material/0 = null
+
+[node name="RightHand2" type="Spatial" parent="OVRFirstPerson/ARVRControllerR"]
+script = ExtResource( 16 )
+target_path = NodePath("../../ARVRControllerL/LeftHandObj")
+
+[node name="scene" parent="OVRFirstPerson/ARVRControllerR/RightHand2" instance=ExtResource( 17 )]
+transform = Transform( -1.31134e-08, 0, -0.3, 0, 0.3, 0, 0.3, 0, -1.31134e-08, 0, 0, 0.3 )
+
+[node name="RayCast" type="RayCast" parent="OVRFirstPerson/ARVRControllerR/RightHand2/scene"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.169931, 0 )
+enabled = true
+cast_to = Vector3( 2000, 0, 0 )
+collision_mask = 3
+collide_with_areas = true
+
+[node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="OVRFirstPerson/ARVRControllerR/RightHand2/scene"]
+transform = Transform( -2.80971e-08, -0.766044, -0.642788, -3.34849e-08, 0.642788, -0.766044, 1, 0, -4.37114e-08, -0.265612, 0.222875, 0 )
+stream = ExtResource( 9 )
+
+[node name="Spatial" type="Spatial" parent="OVRFirstPerson/ARVRControllerR/RightHand2"]
+
+[node name="Spatial" type="Spatial" parent="OVRFirstPerson/ARVRControllerR/RightHand2/Spatial"]
+transform = Transform( -1.31134e-08, 0, -0.3, 0, 0.3, 0, 0.3, 0, -1.31134e-08, 0, 0, 0 )
+
+[node name="RayCast" type="RayCast" parent="OVRFirstPerson/ARVRControllerR/RightHand2/Spatial/Spatial"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.17, 0 )
+enabled = true
+cast_to = Vector3( 2000, 0, 0 )
+collision_mask = 3
+collide_with_areas = true
+
+[node name="MeshInstance" type="MeshInstance" parent="OVRFirstPerson/ARVRControllerR/RightHand2/Spatial/Spatial/RayCast"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 100, 0, 0 )
+material_override = SubResource( 23 )
+mesh = SubResource( 21 )
+material/0 = null
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource( 5 )
+
+[node name="DirectionalLight" type="DirectionalLight" parent="."]
+transform = Transform( 0.556499, -0.579914, 0.594987, 0, 0.716119, 0.697978, -0.830849, -0.388424, 0.398519, 0, 6.64631, 0 )
+light_color = Color( 1, 0.901961, 0.901961, 1 )
+shadow_enabled = true
+
+[node name="Floor" type="MeshInstance" parent="."]
+material_override = SubResource( 14 )
+mesh = SubResource( 11 )
+material/0 = null
+
+[node name="DirectionalLight2" type="DirectionalLight" parent="."]
+shadow_enabled = true
+
+[node name="TargetGroups" type="Spatial" parent="."]
+script = ExtResource( 11 )
+
+[node name="TargetGroup" parent="TargetGroups" instance=ExtResource( 3 )]
+visible = false
+
+[node name="Target" parent="TargetGroups/TargetGroup" instance=ExtResource( 10 )]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -5.58197, 4.851, -22.2308 )
+
+[node name="Target2" parent="TargetGroups/TargetGroup" instance=ExtResource( 10 )]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 4.10598, 2.70329, -30.4429 )
+
+[node name="Target3" parent="TargetGroups/TargetGroup" instance=ExtResource( 10 )]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -2.82598, 2.70329, -22.2308 )
+
+[node name="Target4" parent="TargetGroups/TargetGroup" instance=ExtResource( 10 )]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 2.70329, -54.5307 )
+
+[node name="TargetGroup5" parent="TargetGroups" instance=ExtResource( 3 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -40 )
+visible = false
+
+[node name="Target" parent="TargetGroups/TargetGroup5" instance=ExtResource( 10 )]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -5.58197, 4.851, -22.2308 )
+
+[node name="Target2" parent="TargetGroups/TargetGroup5" instance=ExtResource( 10 )]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 4.10598, 2.70329, -30.4429 )
+
+[node name="Target3" parent="TargetGroups/TargetGroup5" instance=ExtResource( 10 )]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -2.82598, 2.70329, -22.2308 )
+
+[node name="Target4" parent="TargetGroups/TargetGroup5" instance=ExtResource( 10 )]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 2.70329, -54.5307 )
+
+[node name="TargetGroup6" parent="TargetGroups" instance=ExtResource( 3 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -80 )
+visible = false
+
+[node name="Target" parent="TargetGroups/TargetGroup6" instance=ExtResource( 10 )]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -5.58197, 4.851, -22.2308 )
+
+[node name="Target2" parent="TargetGroups/TargetGroup6" instance=ExtResource( 10 )]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 4.10598, 2.70329, -30.4429 )
+
+[node name="Target3" parent="TargetGroups/TargetGroup6" instance=ExtResource( 10 )]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -2.82598, 2.70329, -22.2308 )
+
+[node name="Target4" parent="TargetGroups/TargetGroup6" instance=ExtResource( 10 )]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 2.70329, -54.5307 )
+
+[node name="TargetGroup2" parent="TargetGroups" instance=ExtResource( 3 )]
+visible = false
+
+[node name="Target" parent="TargetGroups/TargetGroup2" instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 13.8757, 6.68913, -22.2308 )
+
+[node name="Target2" parent="TargetGroups/TargetGroup2" instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 9.42991, 6.71307, -38.0734 )
+
+[node name="Target3" parent="TargetGroups/TargetGroup2" instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -5.61141, 2.70329, -34.7792 )
+
+[node name="Target4" parent="TargetGroups/TargetGroup2" instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 2.22158, -22.2308 )
+
+[node name="TargetGroup3" parent="TargetGroups" instance=ExtResource( 3 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -40 )
+visible = false
+
+[node name="Target" parent="TargetGroups/TargetGroup3" instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 13.8757, 6.68913, -22.2308 )
+
+[node name="Target2" parent="TargetGroups/TargetGroup3" instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 9.42991, 6.71307, -38.0734 )
+
+[node name="Target3" parent="TargetGroups/TargetGroup3" instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -5.61141, 2.70329, -34.7792 )
+
+[node name="Target4" parent="TargetGroups/TargetGroup3" instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 2.22158, -22.2308 )
+
+[node name="TargetGroup4" parent="TargetGroups" instance=ExtResource( 3 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -80 )
+visible = false
+
+[node name="Target" parent="TargetGroups/TargetGroup4" instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 13.8757, 6.68913, -22.2308 )
+
+[node name="Target2" parent="TargetGroups/TargetGroup4" instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 9.42991, 6.71307, -38.0734 )
+
+[node name="Target3" parent="TargetGroups/TargetGroup4" instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -5.61141, 2.70329, -34.7792 )
+
+[node name="Target4" parent="TargetGroups/TargetGroup4" instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 2.22158, -22.2308 )
+
+[node name="Sprite3D" type="Sprite3D" parent="."]
+transform = Transform( 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 2.29688, -14.4284 )
+flip_v = true
+alpha_cut = 2
+texture = SubResource( 16 )
+
+[node name="Viewport" type="Viewport" parent="Sprite3D"]
+size = Vector2( 40, 14 )
+size_override_stretch = true
+transparent_bg = true
+usage = 0
+render_target_update_mode = 3
+gui_disable_input = true
+script = ExtResource( 13 )
+
+[node name="Label" type="Label" parent="Sprite3D/Viewport"]
+margin_right = 40.0
+margin_bottom = 14.0
+text = "123"
+
+[node name="Start" type="Spatial" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.87722, -10.2481 )
+script = ExtResource( 15 )
+
+[node name="Area" type="Area" parent="Start"]
+monitoring = false
+
+[node name="CollisionShape" type="CollisionShape" parent="Start/Area"]
+shape = SubResource( 17 )
+
+[node name="MeshInstance" type="MeshInstance" parent="Start/Area"]
+material_override = SubResource( 18 )
+mesh = SubResource( 19 )
+skeleton = NodePath("../..")
+material/0 = null
+
+[node name="MeshInstance" type="MeshInstance" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.74558 )
+mesh = SubResource( 20 )
+material/0 = null

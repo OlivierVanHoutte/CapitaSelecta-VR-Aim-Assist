@@ -1,0 +1,15 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+path="res://.import/266915__coolguy244e__door-slam-gun-shot.mp3-7a83d82c1fd9f0ed63680b96a4316381.mp3str"
+
+[deps]
+
+source_file="res://sfx/266915__coolguy244e__door-slam-gun-shot.mp3"
+dest_files=[ "res://.import/266915__coolguy244e__door-slam-gun-shot.mp3-7a83d82c1fd9f0ed63680b96a4316381.mp3str" ]
+
+[params]
+
+loop=false
+loop_offset=0

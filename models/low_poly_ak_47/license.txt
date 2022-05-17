@@ -1,0 +1,11 @@
+Model Information:
+* title:	Low poly AK 47
+* source:	https://sketchfab.com/3d-models/low-poly-ak-47-1ad26c432eae4c7e95a29aee89d4be53
+* author:	kama12 (https://sketchfab.com/kama12)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Low poly AK 47" (https://sketchfab.com/3d-models/low-poly-ak-47-1ad26c432eae4c7e95a29aee89d4be53) by kama12 (https://sketchfab.com/kama12) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
